@@ -51,7 +51,7 @@ variables:
       - '.vendor'
   before_script:
     - 'ruby -e "puts %(Environment Variables:\n  * #{ENV.keys.grep(/PUPPET|SIMP|BEAKER|MATRIX/).map{|v| %(#{v} = #{ENV[v]})}.join(%(\n  * ))})"'
-    - 'declare GEM_BUNDLER_VER=(-v "~> ${BUNDLER_VERSION:-1.17.0}")'
+    - 'declare GEM_BUNDLER_VER=(-v "~> ${BUNDLER_VERSION:-1.17.1}")'
     - 'declare GEM_INSTALL_CMD=(gem install --no-document)'
     - 'declare BUNDLER_INSTALL_CMD=(bundle install --no-binstubs --jobs $(nproc) "${FLAGS[@]}")'
     - 'mkdir -p ${GEM_HOME} ${BUNDLER_BIN}'
@@ -130,12 +130,12 @@ variables:
   script:
     - 'bundle exec rake spec'
 
-.acceptance_tests: &acceptance_tests
+.acceptance_base: &acceptance_base
   stage: 'acceptance'
   tags: ['beaker']
   <<: *setup_bundler_env
 
-.compliance_tests: &compliance_tests
+.compliance_base: &compliance_base
   stage: 'compliance'
   tags: ['beaker']
   <<: *setup_bundler_env
@@ -177,10 +177,6 @@ pup6-lint:
 # Unit Tests
 #-----------------------------------------------------------------------
 
-pup4.10-unit:
-  <<: *pup_4_10
-  <<: *unit_tests
-
 pup5-unit:
   <<: *pup_5
   <<: *unit_tests
@@ -193,55 +189,58 @@ pup5.5.7-unit:
   <<: *pup_5_5_7
   <<: *unit_tests
 
+pup4.10-unit:
+  <<: *pup_4_10
+  <<: *unit_tests
+
 pup6-unit:
   <<: *pup_6
   <<: *unit_tests
 
-# Acceptance Tests
+# Acceptance tests
 # ==============================================================================
 pup4.10:
   <<: *pup_4_10
-  <<: *acceptance_tests
+  <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites'
-
 # # FIPS is not supported by gitlab yet
 # pup4.10-fips:
 #   <<: *pup_4_10
-#   <<: *acceptance_tests
+#   <<: *acceptance_base
 #   <<: *only_with_SIMP_FULL_MATRIX
 #   script:
 #     - 'BEAKER_fips=yes bundle exec rake beaker:suites'
 
 pup5.5.7:
   <<: *pup_5_5_7
-  <<: *acceptance_tests
+  <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites'
 
 # # FIPS is not supported by gitlab yet
 # pup5.5.7-fips:
 #   <<: *pup_5_5_7
-#   <<: *acceptance_tests
+#   <<: *acceptance_base
 #   script:
 #     - 'BEAKER_fips=yes bundle exec rake beaker:suites'
 
 pup5.5.7-oel:
   <<: *pup_5_5_7
-  <<: *acceptance_tests
+  <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites[default,oel]'
 
 # # FIPS is not supported by gitlab yet
 # pup5.5.7-oel-fips:
 #   <<: *pup_5_5_7
-#   <<: *acceptance_tests
+#   <<: *acceptance_base
 #   <<: *only_with_SIMP_FULL_MATRIX
 #   script:
 #     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
-#
+
 # pup5.5.7-compliance-fips:
 #   <<: *pup_5_5_7
-#   <<: *compliance_tests
+#   <<: *compliance_base
 #   script:
 #     - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
