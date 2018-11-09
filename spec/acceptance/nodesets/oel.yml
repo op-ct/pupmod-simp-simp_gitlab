@@ -1,9 +1,6 @@
 <%
-  if ENV['BEAKER_HYPERVISOR']
-    hypervisor = ENV['BEAKER_HYPERVISOR']
-  else
-    hypervisor = 'vagrant'
-  end
+  hypervisor = ENV['BEAKER_HYPERVISOR'] || 'vagrant'
+  box_version = ENV['BEAKER_box_version__oel_7'] || '0.2.0'
 -%>
 ---
 HOSTS:
@@ -14,7 +11,7 @@ HOSTS:
       - master
     platform:   el-7-x86_64
     box:        onyxpoint/oel-7-x86_64
-    box_check_update: true
+    box_version: <%= box_version %>
     hypervisor: <%= hypervisor %>
     vagrant_memsize: 1024
     vagrant_cpus: 2
@@ -49,9 +46,9 @@ HOSTS:
       - permittedclient
     platform:   el-7-x86_64
     box:        onyxpoint/oel-7-x86_64
+    box_version: <%= box_version %>
     hypervisor: <%= hypervisor %>
     vagrant_memsize: 192
-    box_check_update: true
   client-2:
     roles:
       - client
@@ -60,9 +57,9 @@ HOSTS:
       - ldapserver
     platform:   el-7-x86_64
     box:        onyxpoint/oel-7-x86_64
+    box_version: <%= box_version %>
     hypervisor: <%= hypervisor %>
     vagrant_memsize: 192
-    box_check_update: true
 CONFIG:
   log_level: verbose
   type:      aio
